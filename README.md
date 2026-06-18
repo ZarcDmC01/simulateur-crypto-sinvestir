@@ -74,8 +74,24 @@ Ou via `iframe-resizer` pour un resize automatique (déjà utilisé sur leur sta
 
 ## Suggestions d'amélioration pour S'investir
 
-1. **Comparateur multi-actifs** : simuler 2–3 cryptos en parallèle sur le même graphique (BTC vs ETH vs SOL).
-2. **Export CSV/PDF** : télécharger les données de simulation pour les abonnés premium.
-3. **Scénarios sauvegardés** : avec Supabase (déjà dans leur stack), laisser les utilisateurs connectés sauvegarder et partager leurs scénarios.
-4. **Indicateur de volatilité** : afficher l'écart-type glissant en overlay sur le graphique Historique — signal pédagogique fort sur le risque crypto.
-5. **Mode dark/light toggle** : le design dark est excellent ; un toggle serait un bonus pour l'intégration iframe sur des pages à fond blanc.
+### 1. Projection de tendance par régression linéaire
+Ajouter une courbe de projection sur le graphique Historique, calculée côté serveur via une régression linéaire (ou polynomiale) sur les N derniers points de prix. Exposée via une API route Next.js (`/api/projection`), elle prolongerait visuellement la tendance sur 3, 6 ou 12 mois — en précisant clairement que c'est une extrapolation statistique, non une prédiction.
+
+Stack envisagée : calcul en Python (scikit-learn) via un microservice appelé depuis Next.js, ou directement en TypeScript avec une lib légère (simple-statistics).
+
+### 2. Prédiction de prix par réseau LSTM (Deep Learning)
+Intégrer un modèle LSTM (Long Short-Term Memory) entraîné sur les séries temporelles de prix historiques pour générer une fourchette de prix probable à court terme. Le LSTM est particulièrement adapté aux séries crypto grâce à sa capacité à capturer les dépendances longues (cycles bull/bear).
+
+Architecture proposée :
+- Entraînement offline en Python (TensorFlow/Keras) sur les données Binance
+- Modèle sérialisé et exposé via une API FastAPI déployée sur Vercel (Python runtime) ou un service dédié
+- Affichage d'une zone de confiance (intervalle à 80%) sur le graphique, clairement labellisée "projection IA — non contractuelle"
+
+### 3. Scoring de risque par machine learning
+Calculer un score de risque dynamique pour chaque actif (volatilité, drawdown max, corrélation BTC) via un pipeline ML, et l'afficher comme indicateur visuel dans la fiche de simulation — utile pour les utilisateurs peu expérimentés.
+
+### 4. Agent IA d'analyse de portefeuille (n8n + Claude API)
+Connecter un agent IA (via n8n, déjà dans leur stack) qui, après simulation, génère automatiquement un résumé pédagogique personnalisé : "Sur cette période, votre DCA Bitcoin aurait surperformé un placement livret A de X fois, avec une volatilité Y fois supérieure." Appelé via Claude API (Sonnet), déclenché par webhook n8n après chaque simulation.
+
+### 5. Comparateur multi-actifs + export
+Simuler 2–3 cryptos en parallèle sur le même graphique, avec export CSV/PDF des résultats — fonctionnalité premium sauvegardée dans Supabase pour les utilisateurs connectés.
